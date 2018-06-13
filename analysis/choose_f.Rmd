@@ -1,0 +1,160 @@
+---
+title: "choose_f"
+author: "Wietse de Vries"
+date: "1-6-2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+colnames <- c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'frequency', 'pmi', 'scp', 'cp', 'typicality')
+pairs_1 = read.csv('../event_pairs/none_1_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_5 = read.csv('../event_pairs/none_5_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_10 = read.csv('../event_pairs/none_10_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_15 = read.csv('../event_pairs/none_15_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_20 = read.csv('../event_pairs/none_20_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_25 = read.csv('../event_pairs/none_25_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_30 = read.csv('../event_pairs/none_30_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_35 = read.csv('../event_pairs/none_35_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_40 = read.csv('../event_pairs/none_40_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_45 = read.csv('../event_pairs/none_45_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_50 = read.csv('../event_pairs/none_50_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_55 = read.csv('../event_pairs/none_55_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_60 = read.csv('../event_pairs/none_60_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_65 = read.csv('../event_pairs/none_65_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_70 = read.csv('../event_pairs/none_70_all_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+
+pairs_1 <- pairs_1[order(pairs_1$pmi, decreasing=TRUE),][0:50,]
+pairs_5 <- pairs_5[order(pairs_5$pmi, decreasing=TRUE),][0:50,]
+pairs_10 <- pairs_10[order(pairs_10$pmi, decreasing=TRUE),][0:50,]
+pairs_15 <- pairs_15[order(pairs_15$pmi, decreasing=TRUE),][0:50,]
+pairs_20 <- pairs_20[order(pairs_20$pmi, decreasing=TRUE),][0:50,]
+pairs_25 <- pairs_25[order(pairs_25$pmi, decreasing=TRUE),][0:50,]
+pairs_30 <- pairs_30[order(pairs_30$pmi, decreasing=TRUE),][0:50,]
+pairs_35 <- pairs_35[order(pairs_35$pmi, decreasing=TRUE),][0:50,]
+pairs_40 <- pairs_40[order(pairs_40$pmi, decreasing=TRUE),][0:50,]
+pairs_45 <- pairs_45[order(pairs_45$pmi, decreasing=TRUE),][0:50,]
+pairs_50 <- pairs_50[order(pairs_50$pmi, decreasing=TRUE),][0:50,]
+pairs_55 <- pairs_55[order(pairs_55$pmi, decreasing=TRUE),][0:50,]
+pairs_60 <- pairs_60[order(pairs_60$pmi, decreasing=TRUE),][0:50,]
+pairs_65 <- pairs_65[order(pairs_65$pmi, decreasing=TRUE),][0:50,]
+pairs_70 <- pairs_70[order(pairs_70$pmi, decreasing=TRUE),][0:50,]
+
+med_min <- c(median(pairs_1$frequency) - 1,
+            median(pairs_5$frequency) - 5,
+            median(pairs_10$frequency) - 10,
+            median(pairs_15$frequency) - 15,
+            median(pairs_20$frequency) - 20,
+            median(pairs_25$frequency) - 25,
+            median(pairs_30$frequency) - 30,
+            median(pairs_35$frequency) - 35,
+            median(pairs_40$frequency) - 40,
+            median(pairs_45$frequency) - 45,
+            median(pairs_50$frequency) - 50,
+            median(pairs_55$frequency) - 55,
+            median(pairs_60$frequency) - 60,
+            median(pairs_65$frequency) - 65,
+            median(pairs_70$frequency) - 70
+            )
+```
+
+```{r pressure, echo=FALSE}
+summary(pairs_1$frequency)
+summary(pairs_5$frequency)
+summary(pairs_10$frequency)
+summary(pairs_15$frequency)
+summary(pairs_20$frequency)
+summary(pairs_25$frequency)
+summary(pairs_30$frequency)
+summary(pairs_35$frequency)
+summary(pairs_40$frequency)
+summary(pairs_45$frequency)
+summary(pairs_50$frequency)
+summary(pairs_55$frequency)
+summary(pairs_60$frequency)
+summary(pairs_65$frequency)
+summary(pairs_70$frequency)
+```
+
+## Best
+
+
+```{r cars}
+colnames <- c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'frequency', 'pmi', 'scp', 'cp', 'typicality')
+pairs_1 = read.csv('../event_pairs/none_1_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_5 = read.csv('../event_pairs/none_5_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_10 = read.csv('../event_pairs/none_10_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_15 = read.csv('../event_pairs/none_15_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_20 = read.csv('../event_pairs/none_20_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_25 = read.csv('../event_pairs/none_25_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_30 = read.csv('../event_pairs/none_30_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_35 = read.csv('../event_pairs/none_35_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_40 = read.csv('../event_pairs/none_40_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_45 = read.csv('../event_pairs/none_45_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_50 = read.csv('../event_pairs/none_50_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_55 = read.csv('../event_pairs/none_55_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_60 = read.csv('../event_pairs/none_60_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_65 = read.csv('../event_pairs/none_65_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+pairs_70 = read.csv('../event_pairs/none_70_best_outside_yes/all.csv', sep=';', header=FALSE, col.names=colnames)
+
+pairs_1 <- pairs_1[order(pairs_1$pmi, decreasing=TRUE),][0:50,]
+pairs_5 <- pairs_5[order(pairs_5$pmi, decreasing=TRUE),][0:50,]
+pairs_10 <- pairs_10[order(pairs_10$pmi, decreasing=TRUE),][0:50,]
+pairs_15 <- pairs_15[order(pairs_15$pmi, decreasing=TRUE),][0:50,]
+pairs_20 <- pairs_20[order(pairs_20$pmi, decreasing=TRUE),][0:50,]
+pairs_25 <- pairs_25[order(pairs_25$pmi, decreasing=TRUE),][0:50,]
+pairs_30 <- pairs_30[order(pairs_30$pmi, decreasing=TRUE),][0:50,]
+pairs_35 <- pairs_35[order(pairs_35$pmi, decreasing=TRUE),][0:50,]
+pairs_40 <- pairs_40[order(pairs_40$pmi, decreasing=TRUE),][0:50,]
+pairs_45 <- pairs_45[order(pairs_45$pmi, decreasing=TRUE),][0:50,]
+pairs_50 <- pairs_50[order(pairs_50$pmi, decreasing=TRUE),][0:50,]
+pairs_55 <- pairs_55[order(pairs_55$pmi, decreasing=TRUE),][0:50,]
+pairs_60 <- pairs_60[order(pairs_60$pmi, decreasing=TRUE),][0:50,]
+pairs_65 <- pairs_65[order(pairs_65$pmi, decreasing=TRUE),][0:50,]
+pairs_70 <- pairs_70[order(pairs_70$pmi, decreasing=TRUE),][0:50,]
+
+best_med_min <- c(median(pairs_1$frequency) - 1,
+                median(pairs_5$frequency) - 5,
+                median(pairs_10$frequency) - 10,
+                median(pairs_15$frequency) - 15,
+                median(pairs_20$frequency) - 20,
+                median(pairs_25$frequency) - 25,
+                median(pairs_30$frequency) - 30,
+                median(pairs_35$frequency) - 35,
+                median(pairs_40$frequency) - 40,
+                median(pairs_45$frequency) - 45,
+                median(pairs_50$frequency) - 50,
+                median(pairs_55$frequency) - 55,
+                median(pairs_60$frequency) - 60,
+                median(pairs_65$frequency) - 65,
+                median(pairs_70$frequency) - 70
+                )
+```
+
+```{r pressure, echo=FALSE}
+library(ggplot2)
+library(ggpubr)
+
+freqs <- c(1,5,10,15,20,25,30,35,40,45,50,55,60,65,70)
+
+all_frame <- data.frame(freqs, med_min)
+best_frame <- data.frame(freqs, best_med_min)
+
+p_all <- qplot(all_frame$freqs, all_frame$med_min, data=all_frame) +
+  scale_x_continuous(breaks = round(seq(0, 70, by = 5), 1)) +
+  xlab('Minimum event pair frequency') +
+  ylab('Median frequency - threshold')
+
+p_single <- qplot(best_frame$freqs, best_frame$best_med_min, data=best_frame) +
+  scale_x_continuous(breaks = round(seq(0, 70, by = 5), 1)) +
+  xlab('Minimum event pair frequency') +
+  ylab('Median frequency - threshold')
+
+diff_plot <- ggarrange(p_all, p_single, ncol=2, nrow=1, labels=c('All', 'Single'), font.label=list(size=12), common.legend=T)
+
+# png('pair_frequency_per_minimum.png', width=1800, height=600, res=200)
+diff_plot
+```

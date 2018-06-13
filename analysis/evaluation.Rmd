@@ -1,0 +1,279 @@
+---
+title: "Evaluation"
+author: "Wietse de Vries"
+date: "4-6-2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+ann1 = read.csv('../annotations.results/annotator1.csv', sep=';', header=FALSE, col.names=c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'ann1'))
+ann2 = read.csv('../annotations.results/annotator2.csv', sep=';', header=FALSE, col.names=c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'ann2'))
+ann3 = read.csv('../annotations.results/annotator3.csv', sep=';', header=FALSE, col.names=c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'ann3'))
+ann4 = read.csv('../annotations.results/annotator4.csv', sep=';', header=FALSE, col.names=c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'ann4'))
+ann5 = read.csv('../annotations.results/annotator5.csv', sep=';', header=FALSE, col.names=c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'ann5'))
+
+annotations = merge(merge(merge(merge(ann1, ann2, all.x=T), ann3, all.x=T), ann4, all.x=T), ann5, all.x=T)
+
+labels <- c('correct', 'correct-reversed', 'wrong')
+most_common <- function(x) {
+    x <- factor(x, levels=labels)
+    tabresult <- tabulate(x)
+    themode <- which(tabresult == max(tabresult))
+    if(sum(tabresult == max(tabresult))>1) themode <- NA
+    return(themode)
+}
+
+annotations$annotation <- factor(labels[apply(annotations[,c('ann1','ann2','ann3','ann4','ann5')], 1, most_common)], levels=labels)
+
+annotations$args <- factor(annotations$subj1 != '' | annotations$obj1 != '' | annotations$subj2 != '' | annotations$obj2 != '', levels=c(T,F))
+
+```
+
+```{r pressure, echo=FALSE}
+summary(annotations)
+```
+
+# Scoring
+
+```{r pressure, echo=FALSE}
+annotators <- c('ann1','ann2','ann3','ann4','ann5')
+
+labels <- c('correct', 'correct-reversed', 'wrong')
+contingent_support <- function(x) {
+    x <- factor(x, levels=labels)
+    tabresult <- tabulate(x)
+    if(tabresult[1]==5) return(5)
+    return(tabresult[1] + tabresult[2])
+}
+not_contingent_support <- function(x) {
+    x <- factor(x, levels=labels)
+    tabresult <- tabulate(x)
+    return(tabresult[3])
+}
+
+pmi_annotations <- annotations
+pmi_annotations$contingent <- pmi_annotations$annotation != 'wrong' | is.na(pmi_annotations$annotation)
+pmi_annotations$support[pmi_annotations$contingent == T] <- apply(pmi_annotations[pmi_annotations$contingent == T, annotators], 1, contingent_support)
+pmi_annotations$support[pmi_annotations$contingent == F] <- apply(pmi_annotations[pmi_annotations$contingent == F, annotators], 1, not_contingent_support)
+
+cols <- c('event1', 'event2', 'subj1', 'obj1', 'subj2', 'obj2', 'pmi', 'scp', 'cp', 'typ')
+
+pmi_all = merge(read.csv('../ranked_pairs/pmi_none_30_all_outside_yes/all-1.csv', sep=';', header=FALSE, col.names=cols), pmi_annotations)
+pmi_all_2 = merge(read.csv('../ranked_pairs/pmi_none_30_all_outside_yes/all-2.csv', sep=';', header=FALSE, col.names=cols), pmi_annotations)
+pmi_all_3 = merge(read.csv('../ranked_pairs/pmi_none_30_all_outside_yes/all-3.csv', sep=';', header=FALSE, col.names=cols), pmi_annotations)
+
+pmi_single = merge(read.csv('../ranked_pairs/pmi_none_30_best_outside_yes/all-1.csv', sep=';', header=FALSE, col.names=cols), pmi_annotations)
+pmi_single_2 = merge(read.csv('../ranked_pairs/pmi_none_30_best_outside_yes/all-2.csv', sep=';', header=FALSE, col.names=cols), pmi_annotations)
+pmi_single_3 = merge(read.csv('../ranked_pairs/pmi_none_30_best_outside_yes/all-3.csv', sep=';', header=FALSE, col.names=cols), pmi_annotations)
+
+
+cp_annotations <- annotations
+cp_annotations$contingent <- cp_annotations$annotation == 'correct' & !is.na(cp_annotations$annotation)
+cp_annotations$support[cp_annotations$contingent == T] <- apply(cp_annotations[cp_annotations$contingent == T, annotators], 1, contingent_support)
+cp_annotations$support[cp_annotations$contingent == F] <- apply(cp_annotations[cp_annotations$contingent == F, annotators], 1, not_contingent_support)
+
+cp_all = merge(read.csv('../ranked_pairs/cp_none_30_all_outside_no/all-1.csv', sep=';', header=FALSE, col.names=cols), cp_annotations)
+cp_all_2 = merge(read.csv('../ranked_pairs/cp_none_30_all_outside_no/all-2.csv', sep=';', header=FALSE, col.names=cols), cp_annotations)
+cp_all_3 = merge(read.csv('../ranked_pairs/cp_none_30_all_outside_no/all-3.csv', sep=';', header=FALSE, col.names=cols), cp_annotations)
+
+cp_single = merge(read.csv('../ranked_pairs/cp_none_30_best_outside_no/all-1.csv', sep=';', header=FALSE, col.names=cols), cp_annotations)
+cp_single_2 = merge(read.csv('../ranked_pairs/cp_none_30_best_outside_no/all-2.csv', sep=';', header=FALSE, col.names=cols), cp_annotations)
+cp_single_3 = merge(read.csv('../ranked_pairs/cp_none_30_best_outside_no/all-3.csv', sep=';', header=FALSE, col.names=cols), cp_annotations)
+```
+
+
+```{r pressure, echo=FALSE}
+summary(cp_all$annotation)
+summary(cp_all_2$annotation)  # diff significant
+summary(cp_all_3$annotation)
+
+mean(cp_all$typ)
+mean(cp_all_2$typ)
+mean(cp_all_3$typ)
+
+
+summary(cp_single$annotation)
+summary(cp_single_2$annotation)
+summary(cp_single_3$annotation)
+
+mean(cp_single$typ)
+mean(cp_single_2$typ)
+mean(cp_single_3$typ)
+
+
+summary(pmi_all$annotation)
+summary(pmi_all_2$annotation)
+summary(pmi_all_3$annotation)
+
+mean(pmi_all$typ)
+mean(pmi_all_2$typ)
+mean(pmi_all_3$typ)
+
+
+summary(pmi_single$annotation)
+summary(pmi_single_2$annotation)
+summary(pmi_single_3$annotation)
+
+mean(pmi_single$typ)
+mean(pmi_single_2$typ)
+mean(pmi_single_3$typ)
+```
+
+
+# Agreement
+
+```{r pressure, echo=FALSE}
+library(irr)
+
+kappa2(annotations[,c('ann1', 'ann2')])$value
+kappa2(annotations[,c('ann1', 'ann3')])$value
+kappa2(annotations[,c('ann1', 'ann4')])$value
+kappa2(annotations[,c('ann1', 'ann5')])$value
+kappa2(annotations[,c('ann2', 'ann3')])$value
+kappa2(annotations[,c('ann2', 'ann4')])$value
+kappa2(annotations[,c('ann2', 'ann5')])$value
+kappa2(annotations[,c('ann3', 'ann4')])$value
+kappa2(annotations[,c('ann3', 'ann5')])$value
+kappa2(annotations[,c('ann4', 'ann5')])$value
+
+kappam.fleiss(annotations[,c('ann1', 'ann2', 'ann3', 'ann4', 'ann5')])
+```
+
+
+```{r}
+metric <- c(rep('pmi', 12), rep('cp', 12))
+pairing <- rep(c(rep('all', 6), rep('single', 6)), 2)
+quarter <- rep(c(rep('1', 2), rep('2', 2), rep('3', 2)), 4)
+arguments <- factor(rep(c('yes', 'no'), 12), levels=c('yes','no'))
+
+accuracy <- c(
+  nrow(pmi_all[pmi_all$args == T & pmi_all$contingent == T,]) / nrow(pmi_all[pmi_all$args == T,]),             # pmi all  q1  yes
+  nrow(pmi_all[pmi_all$args == F & pmi_all$contingent == T,]) / nrow(pmi_all[pmi_all$args == F,]),             # pmi all  q1  no
+  nrow(pmi_all_2[pmi_all_2$args == T & pmi_all_2$contingent == T,]) / nrow(pmi_all_2[pmi_all_2$args == T,]),   # pmi all  q2  yes
+  nrow(pmi_all_2[pmi_all_2$args == F & pmi_all_2$contingent == T,]) / nrow(pmi_all_2[pmi_all_2$args == F,]),   # pmi all  q2  no
+  nrow(pmi_all_3[pmi_all_3$args == T & pmi_all_3$contingent == T,]) / nrow(pmi_all_3[pmi_all_3$args == T,]),   # pmi all  q3  yes
+  nrow(pmi_all_3[pmi_all_3$args == F & pmi_all_3$contingent == T,]) / nrow(pmi_all_3[pmi_all_3$args == F,]),   # pmi all  q3  no
+
+  nrow(pmi_single[pmi_single$args == T & pmi_single$contingent == T,]) / nrow(pmi_single[pmi_single$args == T,]),             # pmi single  q1  yes
+  nrow(pmi_single[pmi_single$args == F & pmi_single$contingent == T,]) / nrow(pmi_single[pmi_single$args == F,]),             # pmi single  q1  no
+  nrow(pmi_single_2[pmi_single_2$args == T & pmi_single_2$contingent == T,]) / nrow(pmi_single_2[pmi_single_2$args == T,]),   # pmi single  q2  yes
+  nrow(pmi_single_2[pmi_single_2$args == F & pmi_single_2$contingent == T,]) / nrow(pmi_single_2[pmi_single_2$args == F,]),   # pmi single  q2  no
+  nrow(pmi_single_3[pmi_single_3$args == T & pmi_single_3$contingent == T,]) / nrow(pmi_single_3[pmi_single_3$args == T,]),   # pmi single  q3  yes
+  nrow(pmi_single_3[pmi_single_3$args == F & pmi_single_3$contingent == T,]) / nrow(pmi_single_3[pmi_single_3$args == F,]),   # pmi single  q3  no
+
+  nrow(cp_all[cp_all$args == T & cp_all$contingent == T,]) / nrow(cp_all[cp_all$args == T,]),             # cp all  q1  yes
+  nrow(cp_all[cp_all$args == F & cp_all$contingent == T,]) / nrow(cp_all[cp_all$args == F,]),             # cp all  q1  no
+  nrow(cp_all_2[cp_all_2$args == T & cp_all_2$contingent == T,]) / nrow(cp_all_2[cp_all_2$args == T,]),   # cp all  q2  yes
+  nrow(cp_all_2[cp_all_2$args == F & cp_all_2$contingent == T,]) / nrow(cp_all_2[cp_all_2$args == F,]),   # cp all  q2  no
+  nrow(cp_all_3[cp_all_3$args == T & cp_all_3$contingent == T,]) / nrow(cp_all_3[cp_all_3$args == T,]),   # cp all  q3  yes
+  nrow(cp_all_3[cp_all_3$args == F & cp_all_3$contingent == T,]) / nrow(cp_all_3[cp_all_3$args == F,]),   # cp all  q3  no
+
+  nrow(cp_single[cp_single$args == T & cp_single$contingent == T,]) / nrow(cp_single[cp_single$args == T,]),             # cp single  q1  yes
+  nrow(cp_single[cp_single$args == F & cp_single$contingent == T,]) / nrow(cp_single[cp_single$args == F,]),             # cp single  q1  no
+  nrow(cp_single_2[cp_single_2$args == T & cp_single_2$contingent == T,]) / nrow(cp_single_2[cp_single_2$args == T,]),   # cp single  q2  yes
+  nrow(cp_single_2[cp_single_2$args == F & cp_single_2$contingent == T,]) / nrow(cp_single_2[cp_single_2$args == F,]),   # cp single  q2  no
+  nrow(cp_single_3[cp_single_3$args == T & cp_single_3$contingent == T,]) / nrow(cp_single_3[cp_single_3$args == T,]),   # cp single  q3  yes
+  nrow(cp_single_3[cp_single_3$args == F & cp_single_3$contingent == T,]) / nrow(cp_single_3[cp_single_3$args == F,])    # cp single  q3  no
+)
+
+
+annotators <- c('ann1', 'ann2', 'ann3', 'ann4', 'ann5')
+agreement <- c(
+  kappam.fleiss(pmi_all[pmi_all$args == T, annotators])$value,      # pmi all  q1  yes
+  kappam.fleiss(pmi_all[pmi_all$args == F, annotators])$value,      # pmi all  q1  no
+  kappam.fleiss(pmi_all_2[pmi_all_2$args == T, annotators])$value,  # pmi all  q2  yes
+  kappam.fleiss(pmi_all_2[pmi_all_2$args == F, annotators])$value,  # pmi all  q2  no
+  kappam.fleiss(pmi_all_3[pmi_all_3$args == T, annotators])$value,  # pmi all  q3  yes
+  kappam.fleiss(pmi_all_3[pmi_all_3$args == F, annotators])$value,  # pmi all  q3  no
+  
+  kappam.fleiss(pmi_single[pmi_single$args == T, annotators])$value,      # pmi single  q1  yes
+  kappam.fleiss(pmi_single[pmi_single$args == F, annotators])$value,      # pmi single  q1  no
+  kappam.fleiss(pmi_single_2[pmi_single_2$args == T, annotators])$value,  # pmi single  q2  yes
+  kappam.fleiss(pmi_single_2[pmi_single_2$args == F, annotators])$value,  # pmi single  q2  no
+  kappam.fleiss(pmi_single_3[pmi_single_3$args == T, annotators])$value,  # pmi single  q3  yes
+  kappam.fleiss(pmi_single_3[pmi_single_3$args == F, annotators])$value,  # pmi single  q3  no
+  
+  kappam.fleiss(cp_all[cp_all$args == T, annotators])$value,      # cp all  q1  yes
+  kappam.fleiss(cp_all[cp_all$args == F, annotators])$value,      # cp all  q1  no
+  kappam.fleiss(cp_all_2[cp_all_2$args == T, annotators])$value,  # cp all  q2  yes
+  kappam.fleiss(cp_all_2[cp_all_2$args == F, annotators])$value,  # cp all  q2  no
+  kappam.fleiss(cp_all_3[cp_all_3$args == T, annotators])$value,  # cp all  q3  yes
+  kappam.fleiss(cp_all_3[cp_all_3$args == F, annotators])$value,  # cp all  q3  no
+  
+  kappam.fleiss(cp_single[cp_single$args == T, annotators])$value,      # cp single  q1  yes
+  kappam.fleiss(cp_single[cp_single$args == F, annotators])$value,      # cp single  q1  no
+  kappam.fleiss(cp_single_2[cp_single_2$args == T, annotators])$value,  # cp single  q2  yes
+  kappam.fleiss(cp_single_2[cp_single_2$args == F, annotators])$value,  # cp single  q2  no
+  kappam.fleiss(cp_single_3[cp_single_3$args == T, annotators])$value,  # cp single  q3  yes
+  kappam.fleiss(cp_single_3[cp_single_3$args == F, annotators])$value   # cp single  q3  no
+)
+
+results <- data.frame(metric, pairing, quarter, arguments, accuracy, agreement)
+results
+```
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+p_pmi_all <- ggplot(aes(x=arguments, y=accuracy, fill=quarter), data=results[results$metric == 'pmi' & results$pairing == 'all',]) + geom_bar(stat='identity', position=position_dodge()) + theme(plot.margin=unit(c(1.5,0,0,0), 'lines')) + coord_cartesian(ylim=c(0, 0.7)) 
+
+p_pmi_single <- ggplot(aes(x=arguments, y=accuracy, fill=quarter), data=results[results$metric == 'pmi' & results$pairing == 'single',]) + geom_bar(stat='identity', position=position_dodge()) + theme(plot.margin=unit(c(1.5,0,0,0), 'lines')) + coord_cartesian(ylim=c(0, 0.7)) + ylab('')
+
+p_cp_all <- ggplot(aes(x=arguments, y=accuracy, fill=quarter), data=results[results$metric == 'cp' & results$pairing == 'all',]) + geom_bar(stat='identity', position=position_dodge()) + theme(plot.margin=unit(c(1.5,0,0,0), 'lines')) + coord_cartesian(ylim=c(0, 0.7)) + ylab('')
+
+p_cp_single <- ggplot(aes(x=arguments, y=accuracy, fill=quarter), data=results[results$metric == 'cp' & results$pairing == 'single',]) + geom_bar(stat='identity', position=position_dodge()) + theme(plot.margin=unit(c(1.5,0,0,0), 'lines')) + coord_cartesian(ylim=c(0, 0.7)) + ylab('')
+
+p_accuracies <- ggarrange(p_pmi_all, p_pmi_single, p_cp_all, p_cp_single, ncol=4, nrow=1, labels=c('PMI, all', 'PMI, single', 'CP, all', 'CP, single'), font.label=list(size=12), common.legend=T, legend='right')
+
+
+# png('accuracy_plots.png', width=1600, height=450, res=200)
+p_accuracies
+```
+
+```{r}
+ggplot(aes(x=quarter, y=agreement, fill=arguments), data=results) + geom_bar(stat='identity', position=position_dodge()) + ggtitle('Agreement per quarter')
+
+# png('agreement_accuracy.png', width=1200, height=800, res=300)
+qplot(agreement, accuracy, data=results, shape=metric, color=quarter)
+```
+
+```{r}
+mean(pmi_all$support)
+mean(pmi_all_2$support)
+mean(pmi_all_3$support)
+
+mean(pmi_all$support)
+mean(pmi_all_2$support)
+mean(pmi_all_3$support)
+```
+
+```{r}
+all_pairs <- rbind(pmi_all, pmi_all_2, pmi_all_3,
+                   pmi_single, pmi_single_2, pmi_single_3,
+                   cp_all, cp_all_2, cp_all_3,
+                   cp_single, cp_single_2, cp_single_3)
+all_pairs$cont <- 'contingent'
+all_pairs[all_pairs$contingent == F,]$cont <- 'not contingent'
+
+# png('typicality.png', width=1200, height=800, res=300)
+ggplot(aes(all_pairs$cont, all_pairs$typ), data=all_pairs, xlab='contingency', ylab='typicality') + geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=1.5, notch=FALSE) + xlab('') + ylab('typicality')
+
+mean(all_pairs[all_pairs$contingent == T,]$typ)
+mean(all_pairs[all_pairs$contingent == F,]$typ)
+
+t.test(all_pairs[all_pairs$contingent == T,]$typ, all_pairs[all_pairs$contingent == F,]$typ, alternative='two.sided')
+```
+
+
+```{r}
+mean(pmi_single$typ)
+mean(pmi_single_2$typ)
+mean(pmi_single_3$typ)
+
+t.test(pmi_single$typ, pmi_single_3$typ, alternative='two.sided')
+```
