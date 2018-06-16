@@ -9,7 +9,7 @@ backups/
 log/
 outputs/
 top_pairs*/
-ranked_pairs*/
+ranked_pairs/
 event_pairs*/
 annotations/
 analysis/**/*.txt
